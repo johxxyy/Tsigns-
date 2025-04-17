@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>tsigns – Kleidung gestalten</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+      background-color: #f0f0f0;
+    }
+    #designer {
+      background-color: #fff;
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    canvas {
+      border: 1px solid #ccc;
+      margin-top: 20px;
+    }
+    select, input {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="designer">
+  <h2>Gestalte dein Kleidungsstück</h2>
+
+  <label for="product">Produkt:</label>
+  <select id="product">
+    <option value="tshirt">T-Shirt</option>
+    <option value="hoodie">Hoodie</option>
+  </select>
+
+  <label for="color">Farbe:</label>
+  <input type="color" id="color" value="#ffffff">
+
+  <br>
+
+  <label for="designUpload">Eigenes Design hochladen:</label>
+  <input type="file" id="designUpload" accept="image/*">
+
+  <canvas id="previewCanvas" width="400" height="500"></canvas>
+</div>
+
+<script>
+  const canvas = document.getElementById('previewCanvas');
+  const ctx = canvas.getContext('2d');
+  const colorPicker = document.getElementById('color');
+  const productSelect = document.getElementById('product');
+  const uploadInput = document.getElementById('designUpload');
+
+  // Beispielbilder (funktionierende Direktlinks)
+  const productImages = {
+    tshirt: 'https://cdn.glitch.global/f259020f-36ee-407c-8ac9-6d91c8dfc885/tshirt.png?v=1713364708802',
+    hoodie: 'https://cdn.glitch.global/f259020f-36ee-407c-8ac9-6d91c8dfc885/hoodie.png?v=1713364711903'
+  };
+
+  let clothingImage = new Image();
+  let designImage = null;
+
+  function drawCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Farbfläche
+    ctx.fillStyle = colorPicker.value;
+    ctx.fillRect(100, 100, 200, 300);
+
+    // Kleidungsstück
+    if (clothingImage.complete) {
+      ctx.drawImage(clothingImage, 0, 0, 400, 500);
+    }
+
+    // Eigenes Design
+    if (designImage) {
+      ctx.drawImage(designImage, 150, 230, 100, 100);
+    }
+  }
+
+  function updateClothingImage() {
+    const product = productSelect.value;
+    clothingImage.src = productImages[product];
+  }
+
+  clothingImage.onload = drawCanvas;
+  colorPicker.addEventListener('input', drawCanvas);
+  productSelect.addEventListener('change', () => {
+    updateClothingImage();
+  });
+
+  uploadInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(evt) {
+      designImage = new Image();
+      designImage.onload = drawCanvas;
+      designImage.src = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Initial
+  updateClothingImage();
+</script>
+
+</body>
+</html>
